@@ -1,53 +1,37 @@
-# XTTS-v2 AI Voice Generator
+# XTTS-v2 AI Voice Generator ![Tests](https://github.com/openmindq/xtts-v2-ai-voice/workflows/CI/badge.svg) ![PyPI](https://img.shields.io/pypi/v/xtts-voice.svg)
 
-Profesyonel **metinden konuşmaya (TTS)** ve **ses klonlama (Voice Cloning)** aracı. Coqui XTTS-v2 modelini kullanarak NVIDIA GPU optimize edilmiş, CPU fallback destekli yüksek kaliteli ses üretimi.
+**Profesyonel metinden konuşmaya (TTS) & ses klonlama aracı.** NVIDIA GPU optimize, CPU fallback, Pydantic konfig, Rich CLI.
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
-[![GPU](https://img.shields.io/badge/GPU-Optimized-green.svg)](https://pytorch.org/)
-
-## Özellikler
-- ✅ **Ses Klonlama:** 6-10 saniyelik WAV ile zero-shot voice cloning.
-- ✅ **Çoklu Dil:** Türkçe (tr), İngilizce (en), İspanyolca (es) ve 10+ dil daha.
-- ✅ **GPU/CPU:** Otomatik cihaz algılama (NVIDIA CUDA öncelikli).
-- ✅ **CLI Arayüz:** Kolay komut satırı kullanımı.
-- ✅ **Yüksek Kalite:** XTTS-v2 ile doğal ses sentezi.
-
-## Kurulum
+## 🚀 Hızlı Kurulum
 ```bash
-git clone https://github.com/openmindq/xtts-v2-ai-voice.git
+git clone https://github.com/openmindq/xtts-v2-ai-voice
 cd xtts-v2-ai-voice
-pip install -r requirements.txt
+pip install -e .[dev]
 ```
 
-**Donanım:** NVIDIA GPU (4GB+ VRAM önerilir). CPU'da yavaş çalışır (i5-12400F uyumlu).
-
-## Kullanım
-### Temel TTS
+## 📦 Paket Olarak Kur
 ```bash
-python main.py --text \"Merhaba, bu bir test sesidir.\"
+pip install git+https://github.com/openmindq/xtts-v2-ai-voice.git
+xtts-voice --text \"Merhaba Dünya\"
 ```
 
-### Ses Klonlama
+## 💻 Kullanım
+```
+xtts-voice --text \"Bu klonlanmış sesim.\" --speaker samples/ref.wav --lang tr --output output.wav --verbose
+```
+
+## 🛠 Geliştirme
 ```bash
-python main.py --text \"Ben klonlanmış bir sesim.\" --speaker samples/reference.wav --lang tr
+black .
+mypy src/
+pytest --cov=src/xtts_voice --cov-report=html
 ```
 
-### Parametreler
-- `--text`: Zorunlu, sentezlenecek metin.
-- `--speaker`: Opsiyonel, WAV ses örneği (samples/ dizinine koyun).
-- `--lang`: Dil (tr varsayılan).
-- `--output`: Çıktı dosyası (outputs/ dizinine kaydedilir).
+## 🔧 Özellikler
+- **GPU Otomatik:** CUDA varsa NVIDIA GPU kullanır.
+- **Ses Klonlama:** 6-20 sn WAV ile zero-shot.
+- **16+ Dil:** tr, en, es, fr...
+- **Rich CLI:** Progress bar, renkli çıktı.
+- **Production Ready:** Exceptions, logging, type hints, CI.
 
-## Örnekler
-`samples/` dizinine 6-10 sn'lik temiz WAV koyun. `outputs/` sentezlenmiş sesleri içerir.
-
-## Geliştirme
-```bash
-pytest tests/  # Testleri çalıştırın
-```
-
-## Uyarılar
-- İlk çalıştırmada model (~2GB) indirilir.
-- GPU yoksa CPU yavaş olur.
-
-**Repo:** https://github.com/openmindq/xtts-v2-ai-voice
+**Donanım:** NVIDIA RTX 30xx+ (4GB VRAM), 16GB RAM önerilir.
