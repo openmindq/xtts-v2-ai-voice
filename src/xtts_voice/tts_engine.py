@@ -18,7 +18,12 @@ class TTSEngine:
         logger.info(f'XTTS Engine başlatıldı. Cihaz: {self.device.upper()}')
         
         try:
+            # Bellek yönetimi: GPU için boşaltma ve model yükleme
+            if self.device == 'cuda':
+                torch.cuda.empty_cache()
+            
             self.tts = TTS(self.settings.model_name, gpu=(self.device == 'cuda'))
+            self.tts.to(self.device)
             logger.info('XTTS-v2 modeli başarıyla yüklendi.')
         except Exception as e:
             logger.error(f'Model yükleme hatası: {e}')
