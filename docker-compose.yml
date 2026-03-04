@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  xtts-api:
+    build: .
+    container_name: xtts_v2_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./cache/audio:/app/cache/audio
+      - ./samples:/app/samples
+      - ./outputs:/app/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - USE_GPU=true
+      - MODEL_NAME=tts_models/multilingual/multi-dataset/xtts_v2
+    restart: unless-stopped
