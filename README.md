@@ -16,8 +16,19 @@ xtts-voice --text \"Merhaba Dünya\"
 ```
 
 ## 💻 Kullanım
+### CLI:
+```bash
+# Tek metin
+xtts-voice --text "Bu klonlanmış sesim." --speaker samples/ref.wav --lang tr --output output.wav
+
+# Toplu metin işleme (dosyadan)
+xtts-voice --file texts.txt --speaker samples/ref.wav --output output_dir/
 ```
-xtts-voice --text \"Bu klonlanmış sesim.\" --speaker samples/ref.wav --lang tr --output output.wav --verbose
+
+### API (FastAPI):
+```bash
+# API'yi başlatmak için:
+uvicorn src.xtts_voice.api:app --reload
 ```
 
 ## 🛠 Geliştirme
@@ -28,7 +39,9 @@ pytest --cov=src/xtts_voice --cov-report=html
 ```
 
 ## 🔧 Özellikler
-- **GPU Otomatik:** CUDA varsa NVIDIA GPU kullanır.
+- **GPU Optimizasyonu:** CUDA bellek yönetimi (empty_cache).
+- **FastAPI Entegrasyonu:** Web tabanlı ses sentezleme.
+- **Toplu İşleme:** Dosya tabanlı otomatik batch processing.
 - **Ses Klonlama:** 6-20 sn WAV ile zero-shot.
 - **16+ Dil:** tr, en, es, fr...
 - **Rich CLI:** Progress bar, renkli çıktı.
