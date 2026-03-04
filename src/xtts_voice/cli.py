@@ -19,39 +19,53 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='Örnek: xtts-voice --text "Merhaba" --speaker samples/ref.wav --lang tr'
     )
-    parser.add_argument('--text', type=str, required=True, help='Sentezlenecek metin.')
+    parser.add_argument('--text', type=str, help='Sentezlenecek metin.')
+    parser.add_argument('--file', type=Path, help='Sentezlenecek metinleri içeren dosya (her satır bir cümle).')
     parser.add_argument('--speaker', type=Path, help='Ses klonlama WAV (6-20 sn).')
     parser.add_argument('--lang', type=str, default='tr', help='Dil (tr/en/es vb.).')
-    parser.add_argument('--output', type=Path, help='Çıktı WAV yolu.')
+    parser.add_argument('--output', type=Path, help='Çıktı WAV yolu veya klasörü.')
     parser.add_argument('--verbose', action='store_true', help='Detaylı log.')
     return parser.parse_args()
 
 def main() -> None:
     args = parse_args()
     
+    if not args.text and not args.file:
+        console.print('[red]❌ Hata: --text veya --file belirtilmelidir.[/red]')
+        sys.exit(1)
+
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     
     try:
-        settings = get_settings()
         engine = TTSEngine()
         
-        with Progress(
-            SpinnerColumn(),
-            TextColumn('[progress.description]{task.description}'),
-            console=console
-        ) as progress:
-            task = progress.add_task('Sentezleme...', total=None)
-            output = engine.synthesize(
-                text=args.text,
-                speaker_wav=args.speaker,
-                language=args.lang,
-                output_path=args.output
-            )
-            progress.update(task, description='Tamamlandı!')
+        texts = []
+        if args.text:
+            texts.append(args.text)
+        elif args.file:
+            with open(args.file, 'r', encoding='utf-8') as f:
+                texts = [line.strip() for line in f if line.strip()]
         
-        console.print(f'[green]✅ Ses hazır: {output}[/green]')
-        console.print(f'[blue]📁 Boyut: {output.stat().st_size / 1024:.1f} KB[/blue]')
+        for i, text in enumerate(texts):
+            output_file = args.output
+            if output_file and output_file.is_dir():
+                output_file = output_file / f'output_{i}.wav'
+            
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[progress.description]{task.description}'),
+                console=console
+            ) as progress:
+                progress.add_task(f'Sentezleniyor ({i+1}/{len(texts)})...', total=None)
+                output = engine.synthesize(
+                    text=text,
+                    speaker_wav=args.speaker,
+                    language=args.lang,
+                    output_path=output_file
+                )
+            
+            console.print(f'[green]✅ Ses {i+1} hazır: {output}[/green]')
         
     except XTTSVoiceError as e:
         console.print(f'[red]❌ Hata: {e}[/red]')
