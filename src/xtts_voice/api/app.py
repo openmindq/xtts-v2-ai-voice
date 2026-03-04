@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from prometheus_client import make_asgi_app, Counter, Histogram
 from .core.engine import XTTSEngineV2
 from .utils.cache import AudioCache
 
@@ -11,11 +12,19 @@ from .utils.cache import AudioCache
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Metrikler
+REQUEST_COUNT = Counter("xtts_requests_total", "Toplam istek sayısı")
+REQUEST_LATENCY = Histogram("xtts_request_latency_seconds", "İstek gecikme süresi")
+
 app = FastAPI(
     title="XTTS-v2 Production API",
     description="Yüksek performanslı, streaming destekli XTTS-v2 servisi",
     version="2.0.0"
 )
+
+# Prometheus metrik endpoint'ini bağla
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 # Servisler
 engine = XTTSEngineV2()
@@ -33,11 +42,13 @@ async def add_process_time_header(request: Request, call_next):
     response = await call_next(request)
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
+    REQUEST_LATENCY.observe(process_time)
     return response
 
 @app.get("/health")
 async def health_check():
     """Servis durumunu ve GPU durumunu kontrol eder."""
+    REQUEST_COUNT.inc()
     import torch
     return {
         "status": "online",
