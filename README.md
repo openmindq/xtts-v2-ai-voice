@@ -9,12 +9,12 @@
 - **Dinamik Model Yönetimi:** Singleton mimari, model warmup ve iş parçacığı güvenliği.
 - **Docker Ready:** NVIDIA GPU destekli konteynır yapısı hazır.
 
-## 🐳 Docker ile Hızlı Başlat
+## 🐳 Docker ile Üretim Ortamı
 ```bash
-# GPU destekli Docker konteynırını ayağa kaldırın
+# Servisi ayağa kaldır (API, Redis, Worker)
 docker-compose up -d --build
 ```
-*API http://localhost:8000 adresinden erişilebilir olacaktır.*
+*API http://localhost:8000, Metrikler (Prometheus) http://localhost:8000/metrics adresinden erişilebilir.*
 
 ## 🚀 Yerel Kurulum
 ```bash
@@ -25,9 +25,10 @@ pip install -e .
 
 ## 💻 Kullanım
 ### API Endpoints
-- **POST `/stream`**: `{"text": "Merhaba", "language": "tr", "speaker_wav": "samples/ref.wav"}` -> Streaming Ses Akışı (WAV Chunklar).
-- **POST `/synthesize`**: `{"text": "...", "use_cache": true}` -> Tam Ses Dosyası (Cache destekli).
-- **GET `/health`**: GPU ve Model durumunu kontrol eder.
+- **POST `/stream`**: Gerçek zamanlı streaming.
+- **POST `/synthesize`**: Cache destekli tam dosya sentezleme.
+- **GET `/health`**: Servis ve GPU durumu.
+- **GET `/metrics`**: Prometheus formatında sistem metrikleri.
 
 ### CLI (Yerel Kullanım)
 ```bash
@@ -39,8 +40,9 @@ xtts-voice --file texts.txt --speaker samples/ref.wav --output output_dir/
 ```
 
 ## 🛠 Mimari Yapı
-- `src/xtts_voice/core/`: Optimize edilmiş motor ve model yönetimi.
-- `src/xtts_voice/api/`: FastAPI tabanlı yüksek performanslı endpoint'ler.
-- `src/xtts_voice/utils/`: Caching ve loglama araçları.
+- `core/`: Optimize edilmiş motor ve model yönetimi (Singleton).
+- `api/`: FastAPI tabanlı yüksek performanslı endpoint'ler.
+- `utils/`: Caching ve loglama araçları.
+- `worker/`: Celery/Redis tabanlı async görev kuyruğu.
 
-**Gereksinimler:** NVIDIA RTX 30xx+ (6GB+ VRAM önerilir), CUDA 11.8/12.1+, 16GB RAM.
+**Gereksinimler:** NVIDIA RTX 30xx+ (6GB+ VRAM önerilir), CUDA 11.8/12.1+, 16GB RAM, Redis.
