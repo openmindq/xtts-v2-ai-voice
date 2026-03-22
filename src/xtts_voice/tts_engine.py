@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Optional
 from TTS.api import TTS
 from TTS.tts.configs.xtts_config import XttsConfig
-from config import get_settings
+# Import düzeltildi: Absolute import kullanıldı
+from xtts_voice.settings import get_settings
 from .exceptions import ModelLoadError, SynthesisError, SpeakerFileError
 
 logger = logging.getLogger(__name__)
@@ -69,4 +70,4 @@ class TTSEngine:
             return output_path
         except Exception as e:
             logger.error(f'Sentezleme hatası: {e}')
-            raise SynthesisError(f'Ses sentezleme başarısız: {str(e)}', e)
+            raise SynthesisError(f'Ses sentezleme başarıslandı: {str(e)}', e)
